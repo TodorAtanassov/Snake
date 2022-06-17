@@ -46,3 +46,4 @@ scoring.penup()
 scoring.hideturtle()
 scoring.goto(0, 300)
 scoring.write("Score :", align="center", font=("Courier", 24, "bold"))
+
