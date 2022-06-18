@@ -1,130 +1,57 @@
-import turtle
-
 import pygame
 import numpy
 import random
 import math
-import time
-
-screen = turtle.Screen()
-screen.title('Snake')
-screen.setup(width=700, height=700)
-screen.tracer(0)
-turtle.bgcolor('turquoise')
-
-turtle.speed(5)
-turtle.pensize(4)
-turtle.goto(-310, 250)
-turtle.pendown()
-turtle.color('black')
-turtle.forward(600)
-turtle.right(90)
-turtle.forward(500)
-turtle.right(90)
-turtle.forward(600)
-turtle.right(90)
-turtle.forward(500)
-turtle.penup()
-
-snake = turtle.Turtle()
-snake.speed(0)
-snake.shape('square')
-snake.color('black')
-snake.penup()
-snake.goto(0, 0)
-snake.direction = 'stop'
-fruit = turtle.Turtle()
-fruit.speed(0)
-fruit.shape('circle')
-fruit.color('red')
-fruit.penup()
-fruit.goto(30, 30)
-old_fruit = []
-scoring = turtle.Turtle()
-scoring.speed(0)
-scoring.color("black")
-scoring.penup()
-scoring.hideturtle()
-scoring.goto(0, 300)
-scoring.write("Score :", align="center", font=("Courier", 24, "bold"))
-
-
-def snake_go_up():
-    if snake.direction != "down":
-        snake.direction = "up"
-
-
-def snake_go_down():
-    if snake.direction != "up":
-        snake.direction = "down"
-
-
-def snake_go_left():
-    if snake.direction != "right":
-        snake.direction = "left"
-
-
-def snake_go_right():
-    if snake.direction != "left":
-        snake.direction = "right"
-
-
-def snake_move():
-    if snake.direction == "up":
-        y = snake.ycor()
-        snake.sety(y + 20)
-    if snake.direction == "down":
-        y = snake.ycor()
-        snake.sety(y - 20)
-    if snake.direction == "left":
-        x = snake.xcor()
-        snake.setx(x - 20)
-    if snake.direction == "right":
-        x = snake.xcor()
-        snake.setx(x + 20)
-
-
-score = 0
-delay = 0
-screen.listen()
-screen.onkeypress(snake_go_up, "Up")
-screen.onkeypress(snake_go_down, "Down")
-screen.onkeypress(snake_go_left, "Left")
-screen.onkeypress(snake_go_right, "Right")
-if snake.distance(fruit) < 20:
-    x = random.randint(-290, 270)
-    y = random.randint(-240, 240)
-    fruit.goto(x, y)
-    scoring.clear()
-    score += 1
-    scoring.write("Score:{}".format(score), align="center", font=("Courier", 24, "bold"))
-    delay -= 0.001
-new_fruit = turtle.Turtle()
-new_fruit.speed(0)
-new_fruit.shape('square')
-new_fruit.color('red')
-new_fruit.penup()
-old_fruit.append(new_fruit)
-for index in range(len(old_fruit) - 1, 0, -1):
-    a = old_fruit[index - 1].xcor()
-    b = old_fruit[index - 1].ycor()
-    old_fruit[index].goto(a, b)
-
-if len(old_fruit) > 0:
-    a = snake.xcor()
-    b = snake.ycor()
-    old_fruit[0].goto(a, b)
-snake_move()
-if snake.xcor() > 280 or snake.xcor() < -300 or snake.ycor() > 240 or snake.ycor() < -240:
-    time.sleep(1)
-    screen.clear()
-    screen.bgcolor('turquoise')
-    scoring.goto(0, 0)
-    scoring.write("   GAME OVER \n Your Score is {}".format(score), align="center", font=("Courier", 30, "bold"))
-for food in old_fruit:
-    if food.distance(snake) < 20:
-        time.sleep(1)
-        screen.clear()
-        screen.bgcolor('turquoise')
-        scoring.goto(0, 0)
-        scoring.write("    GAME OVER \n Your Score is {}".format(score), align="center", font=("Courier", 30, "bold"))
+pygame.init()
+clock = pygame.time.Clock()
+screen = pygame.display.set_mode((377, 377))
+grid = numpy.zeros((15, 15), dtype="int8")
+for i in range(4):
+    grid[7][2+i] = 2
+apple_pos = [7, 11]
+grid[apple_pos[0]][apple_pos[1]] = 5
+snake = [[7, 2], [7, 5]]
+d = [2, 2]
+direction_list = []
+keys = [pygame.K_UP, pygame.K_RIGHT, pygame.K_DOWN, pygame.K_LEFT]
+colors = [(0, 150, 150), (0, 255, 0), (255, 0, 0)]
+frames = 0
+moving = False
+while True:
+    frames += 1
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            quit()
+        if event.type == pygame.KEYDOWN:
+            for i in range(len(keys)):
+                if event.key == keys[i]:
+                    moving = True
+                    direction_list.append(i+1)
+    if moving and frames >= 10:
+        frames = 0
+        if len(direction_list) > 0:
+            d[1] = direction_list[0]
+            direction_list.pop(0)
+        d[0] = grid[snake[0][0]][snake[0][1]]
+        last_pos = [snake[0][:], snake[1][:]]
+        for i in range(2):
+            snake[i][round((d[i] % 2-1)*-1)] += round(5/24*d[i]**4 - 25/12*d[i]**3 + 151/24*d[i]**2 - 65/12*d[i])
+            grid[last_pos[i][0]][last_pos[i][1]] = d[i] * i
+            if i:
+                for n in range(2):
+                    if snake[i][n] < 0 or snake[i][n] > 14:
+                        quit()
+                if 5 > grid[snake[i][0]][snake[i][1]] > 0:
+                    quit()
+                if snake[i] == apple_pos:
+                    grid[last_pos[0][0]][last_pos[0][1]] = d[0]
+                    snake[0] = last_pos[0]
+                    while grid[apple_pos[0]][apple_pos[1]] != 0:
+                        apple_pos = [random.randint(0, 14), random.randint(0, 14)]
+                    grid[apple_pos[0]][apple_pos[1]] = 5
+                grid[snake[i][0]][snake[i][1]] = d[1]
+    for row in range(len(grid)):
+        for pos in range(len(grid[row])):
+            pygame.draw.rect(screen, colors[round((math.log(grid[row][pos]+1))-0.15)], (25*pos + 2, 25*row + 2, 23, 23))
+    clock.tick(60)
+    pygame.display.update()
