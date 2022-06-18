@@ -121,4 +121,10 @@ if snake.xcor() > 280 or snake.xcor() < -300 or snake.ycor() > 240 or snake.ycor
     screen.bgcolor('turquoise')
     scoring.goto(0, 0)
     scoring.write("   GAME OVER \n Your Score is {}".format(score), align="center", font=("Courier", 30, "bold"))
-
+for food in old_fruit:
+    if food.distance(snake) < 20:
+        time.sleep(1)
+        screen.clear()
+        screen.bgcolor('turquoise')
+        scoring.goto(0, 0)
+        scoring.write("    GAME OVER \n Your Score is {}".format(score), align="center", font=("Courier", 30, "bold"))
