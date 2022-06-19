@@ -2,10 +2,12 @@ import pygame
 import numpy
 import random
 import math
+
 pygame.init()
+pygame.display.set_caption('Snake')
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((477, 477))
-grid = numpy.zeros((20, 20), dtype="int8")
+screen = pygame.display.set_mode((377, 377))
+grid = numpy.zeros((15, 15), dtype="int8")
 for i in range(4):
     grid[7][2+i] = 2
 apple_pos = [7, 11]
